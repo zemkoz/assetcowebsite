@@ -1,0 +1,5 @@
+**/.idea/
+**/*.iws
+**/*.iml
+**/target/
+**/local-mvn-repo/
