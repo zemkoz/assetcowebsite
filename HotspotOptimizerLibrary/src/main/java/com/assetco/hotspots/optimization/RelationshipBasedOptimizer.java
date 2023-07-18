@@ -1,6 +1,9 @@
 package com.assetco.hotspots.optimization;
 
-import com.assetco.search.results.*;
+import com.assetco.search.results.Asset;
+import com.assetco.search.results.AssetVendor;
+import com.assetco.search.results.Hotspot;
+import com.assetco.search.results.SearchResults;
 
 import java.util.*;
 
@@ -29,10 +32,6 @@ class RelationshipBasedOptimizer {
                 continue;
 
             partnerAssets.add(asset);
-
-            // if we don't have a showcase, get one for this partner
-            if (showcaseAssets.size() == 0)
-                showcaseAssets = getShowcaseAssetsForPartner(showcaseAssetsByPartner, asset.getVendor());
 
             if (showcaseAssets.size() >= 5) {
                 if (Objects.equals(showcaseAssets.get(0).getVendor(), asset.getVendor()))
