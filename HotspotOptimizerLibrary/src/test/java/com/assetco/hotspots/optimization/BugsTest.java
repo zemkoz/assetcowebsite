@@ -4,11 +4,12 @@ import com.assetco.search.results.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.assetco.hotspots.optimization.Any.*;
 import static com.assetco.search.results.HotspotKey.Showcase;
+import static com.assetco.search.results.HotspotKey.TopPicks;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -32,18 +33,15 @@ class BugsTest {
         Asset firstAssetOfPartnerVendor = givenAssetInResultsWithVendor(firstPartnerVendor);
         Asset anotherPartnerAsset = givenAssetInResultsWithVendor(secondPartnerVendor);
 
-        List<Asset> expected = List.of(
-                firstAssetOfPartnerVendor,
-                givenAssetInResultsWithVendor(firstPartnerVendor),
-                givenAssetInResultsWithVendor(firstPartnerVendor),
-                givenAssetInResultsWithVendor(firstPartnerVendor),
-                givenAssetInResultsWithVendor(firstPartnerVendor)
-        );
+        List<Asset> expectedAssetsInShowcase = new ArrayList<>();
+        expectedAssetsInShowcase.add(firstAssetOfPartnerVendor);
+        expectedAssetsInShowcase.addAll(givenAssetInResultsWithVendorMultipleTimes(firstPartnerVendor, 4));
 
         whenOptimize();
 
         thenHotspotDoesNotHave(Showcase, anotherPartnerAsset);
-        thenHotspotHasExactly(Showcase, expected);
+        thenHotspotHasExactly(Showcase, expectedAssetsInShowcase);
+        thenHotspotHasExactly(TopPicks, List.of());
     }
 
     @Test
@@ -53,11 +51,11 @@ class BugsTest {
         givenAssetInResultsWithVendor(secondPartnerVendor);
         givenAssetInResultsWithVendor(firstPartnerVendor);
 
-        List<Asset> expected = Collections.emptyList();
+        List<Asset> expectedAssetsInShowcase = List.of();
 
         whenOptimize();
 
-        thenHotspotHasExactly(Showcase, expected);
+        thenHotspotHasExactly(Showcase, expectedAssetsInShowcase);
     }
 
     @Test
@@ -69,12 +67,23 @@ class BugsTest {
         var secondPartnerAssert3 = givenAssetInResultsWithVendor(secondPartnerVendor);
         var firstPartnerAsset3 = givenAssetInResultsWithVendor(firstPartnerVendor);
         var firstPartnerAsset4 = givenAssetInResultsWithVendor(firstPartnerVendor);
-        var expected = List.of(secondPartnerAssert1, secondPartnerAssert2, secondPartnerAssert3);
+        var expectedAssetsInShowcase = List.of(secondPartnerAssert1, secondPartnerAssert2, secondPartnerAssert3);
 
         whenOptimize();
 
         thenHotspotDoesNotHave(Showcase, firstPartnerAsset1, firstPartnerAsset2, firstPartnerAsset3, firstPartnerAsset4);
-        thenHotspotHasExactly(Showcase, expected);
+        thenHotspotHasExactly(Showcase, expectedAssetsInShowcase);
+    }
+
+    @Test
+    void assetsExceedingShowcaseSize() {
+        var expectedAssetsInShowcase = givenAssetInResultsWithVendorMultipleTimes(firstPartnerVendor, 5);
+        var expectedAssetsInTopPicks = givenAssetInResultsWithVendorMultipleTimes(firstPartnerVendor, 2);
+
+        whenOptimize();
+
+        thenHotspotHasExactly(Showcase, expectedAssetsInShowcase);
+        thenHotspotHasExactly(TopPicks, expectedAssetsInTopPicks);
     }
 
     private Asset givenAssetInResultsWithVendor(AssetVendor assetVendor) {
@@ -82,6 +91,14 @@ class BugsTest {
                 string(), string(), URI(), URI(), assetPurchaseInfo(), assetPurchaseInfo(), setOfTopics(), assetVendor);
         searchResults.addFound(asset);
         return asset;
+    }
+
+    private List<Asset> givenAssetInResultsWithVendorMultipleTimes(AssetVendor assetVendor, int times) {
+        List<Asset> assetsList = new ArrayList<>();
+        for (int i = 0; i < times; i++) {
+            assetsList.add(givenAssetInResultsWithVendor(assetVendor));
+        }
+        return assetsList;
     }
 
     private AssetVendor makeVendor(AssetVendorRelationshipLevel relationshipLevel) {

@@ -30,7 +30,6 @@ class RelationshipBasedOptimizer {
 
     public void optimize(SearchResults searchResults) {
         // don't affect a showcase built by an earlier rule
-        var showcaseFull = searchResults.getHotspot(Showcase).getMembers().size() > 0;
         var partnerAssets = new ArrayList<Asset>();
         var goldAssets = new ArrayList<Asset>();
         var silverAssets = new ArrayList<Asset>();
@@ -46,8 +45,6 @@ class RelationshipBasedOptimizer {
                 partnerAssets.add(asset);
             }
         }
-
-        var showcaseAssets = createShowcaseFromPartnerAssets(partnerAssets, searchResults);
 
         // [DBV], 4/14/2014:
         // need added this here even though it's not about this rules
@@ -65,11 +62,12 @@ class RelationshipBasedOptimizer {
         for (var asset : partnerAssets)
             searchResults.getHotspot(Fold).addMember(asset);
 
-        // only copy showcase assets into hotspot if there are enough for a partner to claim the showcase
-        if (!showcaseFull && showcaseAssets.size() >= ASSETS_COUNTS_TO_OWN_SHOWCASE) {
-            Hotspot showcaseHotspot = searchResults.getHotspot(Showcase);
-            for (Asset asset : showcaseAssets)
-                showcaseHotspot.addMember(asset);
+        var showcaseHotspot = searchResults.getHotspot(Showcase);
+        if (showcaseHotspot.getMembers().isEmpty()) {
+            var showcaseAssets = createShowcaseFromPartnerAssets(partnerAssets);
+            showcaseAssets =
+                    pushAssetsExceedingAllowedSizeOfShowcaseToHotspot(searchResults.getHotspot(TopPicks), showcaseAssets);
+            showcaseAssets.forEach(showcaseHotspot::addMember);
         }
 
         // acw-14339: gold assets should be in high value hotspots if there are no partner assets in search
@@ -86,23 +84,23 @@ class RelationshipBasedOptimizer {
             searchResults.getHotspot(Fold).addMember(asset);
     }
 
-    private List<Asset> createShowcaseFromPartnerAssets(ArrayList<Asset> partnerAssets, SearchResults searchResults) {
+    private static List<Asset> pushAssetsExceedingAllowedSizeOfShowcaseToHotspot(Hotspot hotspot, List<Asset> showcaseAssets) {
+        if (showcaseAssets.size() > MAX_ASSETS_IN_SHOWCASE) {
+            showcaseAssets.subList(MAX_ASSETS_IN_SHOWCASE, showcaseAssets.size())
+                    .forEach(hotspot::addMember);
+            showcaseAssets = showcaseAssets.subList(0, MAX_ASSETS_IN_SHOWCASE);
+        }
+        return showcaseAssets;
+    }
+
+    private List<Asset> createShowcaseFromPartnerAssets(List<Asset> partnerAssets) {
         List<Asset> showcaseAssets = new ArrayList<>();
         var assetsByVendorMap = new HashMap<AssetVendor, List<Asset>>();
 
         for (Asset asset : partnerAssets) {
-            List<Asset> currentAssetList = getAssetsListFromAssetsVendorMap(asset, assetsByVendorMap);
+            var currentAssetList = getAssetsListFromAssetsVendorMap(asset, assetsByVendorMap);
 
-            if (showcaseAssets.size() >= ASSETS_COUNTS_TO_OWN_SHOWCASE) {
-
-                if (showcaseAssets == currentAssetList) {
-                    if (showcaseAssets.size() >= MAX_ASSETS_IN_SHOWCASE) {
-                        searchResults.getHotspot(TopPicks).addMember(asset);
-                    } else {
-                        showcaseAssets.add(asset);
-                    }
-                }
-            } else {
+            if (showcaseAssets == currentAssetList || showcaseAssets.size() < ASSETS_COUNTS_TO_OWN_SHOWCASE) {
                 showcaseAssets = currentAssetList;
                 showcaseAssets.add(asset);
             }
@@ -111,7 +109,7 @@ class RelationshipBasedOptimizer {
         if (showcaseAssets.size() < ASSETS_COUNTS_TO_OWN_SHOWCASE) {
             return Collections.emptyList();
         }
-        return showcaseAssets;
+         return showcaseAssets;
     }
 
     private static List<Asset> getAssetsListFromAssetsVendorMap(Asset asset, Map<AssetVendor, List<Asset>> assetsByVendorMap) {
