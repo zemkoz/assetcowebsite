@@ -9,8 +9,7 @@ import java.util.List;
 
 import static com.assetco.hotspots.optimization.Any.*;
 import static com.assetco.search.results.HotspotKey.Highlight;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SecondBugsTest {
     private SearchResultHotspotOptimizer sut;
@@ -48,7 +47,7 @@ public class SecondBugsTest {
 
         whenOptimize();
 
-        thenHotspotContains(Highlight, expected);
+        thenHotspotHasExactly(Highlight, expected);
     }
 
     private AssetTopic givenTopic(String topicId) {
@@ -66,17 +65,8 @@ public class SecondBugsTest {
         sut.optimize(searchResults);
     }
 
-    private void thenHotspotDoesNotHave(HotspotKey hotspotKey, Asset...forbiddenAssets) {
+    private void thenHotspotHasExactly(HotspotKey hotspotKey, List<Asset> expectedAssetList) {
         Hotspot hotspot = searchResults.getHotspot(hotspotKey);
-        for (var forbiddenAsset : forbiddenAssets) {
-            assertFalse(hotspot.getMembers().contains(forbiddenAsset));
-        }
-    }
-
-    private void thenHotspotContains(HotspotKey hotspotKey, List<Asset> expectedAssetList) {
-        Hotspot hotspot = searchResults.getHotspot(hotspotKey);
-        for (var expected : expectedAssetList) {
-            assertTrue(hotspot.getMembers().contains(expected));
-        }
+        assertEquals(hotspot.getMembers(), expectedAssetList);
     }
 }
