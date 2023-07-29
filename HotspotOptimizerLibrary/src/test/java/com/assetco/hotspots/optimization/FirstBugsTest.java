@@ -13,7 +13,7 @@ import static com.assetco.search.results.HotspotKey.TopPicks;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-class BugsTest {
+class FirstBugsTest {
     private SearchResultHotspotOptimizer sut;
     private SearchResults searchResults;
     private AssetVendor firstPartnerVendor;

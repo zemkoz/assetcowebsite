@@ -1,9 +1,13 @@
 package com.assetco.hotspots.optimization;
 
-import com.assetco.search.results.*;
+import com.assetco.search.results.Asset;
+import com.assetco.search.results.AssetTopic;
+import com.assetco.search.results.SearchResults;
 
-import java.util.*;
-import java.util.function.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Objects;
+import java.util.function.Predicate;
 
 import static com.assetco.search.results.HotspotKey.*;
 
@@ -15,24 +19,22 @@ class TopicsBasedOptimizer {
     // returns true if showcase filled, false otherwise
     // outer process uses return value to prevent application of other rules
     public boolean optimize(SearchResults searchResults, AssetTopicsSource hotTopicsSource) {
-        int showcased = 0;
         var hotTopics = new ArrayList<AssetTopic>();
+        hotTopicsSource.getTopics().forEach(hotTopics::add);
+
+        for (Asset asset : searchResults.getFound()) {
+            if (getHottestTopicIn(asset, hotTopics) != null)
+                searchResults.getHotspot(Highlight).addMember(asset);
+        }
+
+        int showcased = 0;
         AssetTopic hotTopic = null;
+        var showcaseAssets = new ArrayList<Asset>();
 
         // just get one iterator so we can keep looping after we've started filling teh showcase
         Iterator<Asset> iterator = searchResults.getFound().iterator();
-        var showcaseAssets = new ArrayList<Asset>();
-
         while (iterator.hasNext()) {
             Asset asset = iterator.next();
-
-            // make sure our hot topics list is up to date
-            if (hotTopics.size() == 0)
-                hotTopicsSource.getTopics().forEach(hotTopics::add);
-
-            // make sure to at least highlight
-            if (getHottestTopicIn(asset, hotTopics) != null)
-                searchResults.getHotspot(Highlight).addMember(asset);
 
             // any topic wins first time
             if (hotTopic == null)
