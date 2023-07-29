@@ -1,8 +1,8 @@
 package com.assetco.hotspots.optimization;
 
-import com.assetco.search.results.*;
+import com.assetco.search.results.SearchResults;
 
-import java.math.*;
+import java.math.BigDecimal;
 
 import static com.assetco.search.results.HotspotKey.HighValue;
 
@@ -56,9 +56,10 @@ class SalesInfoBasedOptimizer {
         //        searchResults.getHotspot(HighValue).addMember(asset);
         //}
         for (var asset : searchResults.getFound()) {
+            /*
             if (searchResults.getHotspot(HighValue).getMembers().size() > 0)
                 return;
-
+            */
             if (asset.getPurchaseInfoLast24Hours().getTimesShown() >= 1000 &&
                     asset.getPurchaseInfoLast24Hours().getTimesPurchased() * 200 >= asset.getPurchaseInfoLast24Hours().getTimesShown())
                 searchResults.getHotspot(HighValue).addMember(asset);
