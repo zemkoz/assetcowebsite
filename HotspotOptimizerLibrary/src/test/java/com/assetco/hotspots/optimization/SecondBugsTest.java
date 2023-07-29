@@ -4,6 +4,7 @@ import com.assetco.search.results.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.assetco.hotspots.optimization.Any.*;
@@ -15,37 +16,39 @@ public class SecondBugsTest {
     private SearchResultHotspotOptimizer sut;
     private SearchResults searchResults;
 
-    private AssetTopic higherPriorityTopic;
-    private AssetTopic lowerPriorityTopic;
+    private AssetTopic regularTopic;
+    private AssetTopic higherPriorityHotTopic;
+    private AssetTopic lowerPriorityHotTopic;
 
 
     @BeforeEach
     void setUp() {
-        higherPriorityTopic = givenTopic("HigherPriorityTopic");
-        lowerPriorityTopic = givenTopic("lowerPriorityTopic");
+        regularTopic = givenTopic("regularTopic");
+        higherPriorityHotTopic = givenTopic("HigherPriorityTopic");
+        lowerPriorityHotTopic = givenTopic("lowerPriorityTopic");
 
         sut = new SearchResultHotspotOptimizer();
-        sut.setHotTopics(() -> List.of(higherPriorityTopic, lowerPriorityTopic));
+        sut.setHotTopics(() -> List.of(higherPriorityHotTopic, lowerPriorityHotTopic));
 
         searchResults = new SearchResults();
     }
 
     @Test
-    void someHotTopicAssetsAreNotHighlighted() {
-        var asset1 = givenAsset("asset1", List.of(lowerPriorityTopic));
-        var asset2 = givenAsset("asset2", List.of(lowerPriorityTopic));
-        var asset3 = givenAsset("asset3", List.of(higherPriorityTopic));
-        var asset4 = givenAsset("asset4", List.of(lowerPriorityTopic));
-        var asset5 = givenAsset("asset5", List.of(higherPriorityTopic));
-        var asset6 = givenAsset("asset6", List.of(higherPriorityTopic));
-        var asset7 = givenAsset("asset7", List.of(lowerPriorityTopic));
-
-        var expectedHighlightedAssets = List.of(asset1, asset2, asset3, asset4, asset5);
+    void allHotTopicAssetsAreHighlighted() {
+        var expected = new ArrayList<Asset>();
+        expected.add(givenAsset("asset1", List.of(lowerPriorityHotTopic)));
+        expected.add(givenAsset("asset2", List.of(lowerPriorityHotTopic)));
+        expected.add(givenAsset("asset3", List.of(higherPriorityHotTopic)));
+        givenAsset("asset4", List.of(regularTopic));
+        expected.add(givenAsset("asset5", List.of(lowerPriorityHotTopic)));
+        expected.add(givenAsset("asset6", List.of(higherPriorityHotTopic)));
+        givenAsset("asset7", List.of(regularTopic));
+        expected.add(givenAsset("asset8", List.of(higherPriorityHotTopic)));
+        expected.add(givenAsset("asset9", List.of(lowerPriorityHotTopic)));
 
         whenOptimize();
 
-        thenHotspotContains(Highlight, expectedHighlightedAssets);
-        thenHotspotDoesNotHave(Highlight, asset6, asset7);
+        thenHotspotContains(Highlight, expected);
     }
 
     private AssetTopic givenTopic(String topicId) {
