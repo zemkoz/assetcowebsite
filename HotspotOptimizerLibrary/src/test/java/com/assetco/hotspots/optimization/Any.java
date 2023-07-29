@@ -19,6 +19,10 @@ class Any {
         // Shouldn't be instantiated.
     }
 
+    static AssetVendor anyAssetVendor() {
+        return new AssetVendor(string(), string(), AssetVendorRelationshipLevel.Partner, anyLong());
+    }
+
     /**
      * Generate a topic that can be used for testing.
      */
