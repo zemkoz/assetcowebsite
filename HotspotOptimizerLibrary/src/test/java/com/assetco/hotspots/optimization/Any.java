@@ -20,8 +20,14 @@ class Any {
     }
 
     static AssetVendor anyAssetVendor() {
-        return new AssetVendor(string(), string(), AssetVendorRelationshipLevel.Partner, anyLong());
+        return new AssetVendor(string(), string(), anyEnumerationValue(AssetVendorRelationshipLevel.class), anyLong());
     }
+
+    private static <T> T anyEnumerationValue(Class<T> clazz) {
+        var values = clazz.getEnumConstants();
+        return values[RANDOM_GENERATOR.nextInt(values.length)];
+    }
+
 
     /**
      * Generate a topic that can be used for testing.
