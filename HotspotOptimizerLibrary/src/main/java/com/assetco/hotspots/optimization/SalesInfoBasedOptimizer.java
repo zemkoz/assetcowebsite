@@ -56,20 +56,23 @@ class SalesInfoBasedOptimizer {
         //        searchResults.getHotspot(HighValue).addMember(asset);
         //}
         for (var asset : searchResults.getFound()) {
-            /*
-            if (searchResults.getHotspot(HighValue).getMembers().size() > 0)
-                return;
-            */
+            if (searchResults.getHotspot(HighValue).getMembers().contains(asset)) {
+                continue;
+            }
+
             if (asset.getPurchaseInfoLast24Hours().getTimesShown() >= 1000 &&
                     asset.getPurchaseInfoLast24Hours().getTimesPurchased() * 200 >= asset.getPurchaseInfoLast24Hours().getTimesShown())
                 searchResults.getHotspot(HighValue).addMember(asset);
         }
 
         for (var asset : searchResults.getFound()) {
+            if (searchResults.getHotspot(HighValue).getMembers().contains(asset)) {
+                continue;
+            }
+
             if (asset.getPurchaseInfoLast30Days().getTimesShown() >= 50000 &&
                     asset.getPurchaseInfoLast30Days().getTimesPurchased() * 125 >= asset.getPurchaseInfoLast30Days().getTimesShown())
-                // [jmj, 2017/jun/5]: This is where you would fix the problem.
-                // Make sure the asset isn't already in the hotspot before adding
+
                 searchResults.getHotspot(HighValue).addMember(asset);
         }
     }

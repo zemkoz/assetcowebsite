@@ -27,7 +27,7 @@ public class FinalBugTest {
 
         whenOptimize();
 
-        thenHotspotContainsAssetSeveralTimes(HotspotKey.HighValue, asset, 2);
+        thenHotspotContainsAssetSeveralTimes(HotspotKey.HighValue, asset, 1);
     }
 
     private Asset givenAsset(AssetPurchaseInfo purchaseInfoLast24Hours, AssetPurchaseInfo purchaseInfoLast30Days) {
