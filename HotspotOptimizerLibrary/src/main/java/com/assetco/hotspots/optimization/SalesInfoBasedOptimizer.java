@@ -1,8 +1,9 @@
 package com.assetco.hotspots.optimization;
 
-import com.assetco.search.results.*;
+import com.assetco.search.results.Asset;
+import com.assetco.search.results.SearchResults;
 
-import java.math.*;
+import java.math.BigDecimal;
 
 import static com.assetco.search.results.HotspotKey.HighValue;
 
@@ -45,7 +46,6 @@ class SalesInfoBasedOptimizer {
                 searchResults.getHotspot(HighValue).addMember(asset);
         }
 
-
         //acw-11301:
         //for (var asset : searchResults.getFound()) {
         //    if (searchResults.getHotspot(HighValue).getMembers().size() > 0)
@@ -55,21 +55,27 @@ class SalesInfoBasedOptimizer {
         //            asset.getPurchaseInfoLast24Hours().getTimesPurchased() * 200 >= asset.getPurchaseInfoLast24Hours().getTimesShown())
         //        searchResults.getHotspot(HighValue).addMember(asset);
         //}
-        for (var asset : searchResults.getFound()) {
-            if (searchResults.getHotspot(HighValue).getMembers().size() > 0)
-                return;
-
-            if (asset.getPurchaseInfoLast24Hours().getTimesShown() >= 1000 &&
-                    asset.getPurchaseInfoLast24Hours().getTimesPurchased() * 200 >= asset.getPurchaseInfoLast24Hours().getTimesShown())
-                searchResults.getHotspot(HighValue).addMember(asset);
-        }
 
         for (var asset : searchResults.getFound()) {
-            if (asset.getPurchaseInfoLast30Days().getTimesShown() >= 50000 &&
-                    asset.getPurchaseInfoLast30Days().getTimesPurchased() * 125 >= asset.getPurchaseInfoLast30Days().getTimesShown())
-                // [jmj, 2017/jun/5]: This is where you would fix the problem.
-                // Make sure the asset isn't already in the hotspot before adding
+            var highValueHotspot = searchResults.getHotspot(HighValue);
+            if (!highValueHotspot.getMembers().contains(asset) && wasTheAssetWellSold(asset)) {
                 searchResults.getHotspot(HighValue).addMember(asset);
+            }
         }
+    }
+
+    private static boolean wasTheAssetWellSold(Asset asset) {
+        return wasTheAssetWellSoldInLast24Hours(asset) || wasTheAssetWellSoldInLast30Days(asset);
+    }
+
+
+    private static boolean wasTheAssetWellSoldInLast24Hours(Asset asset) {
+        return asset.getPurchaseInfoLast24Hours().getTimesShown() >= 1000 &&
+                asset.getPurchaseInfoLast24Hours().getTimesPurchased() * 200 >= asset.getPurchaseInfoLast24Hours().getTimesShown();
+    }
+
+    private static boolean wasTheAssetWellSoldInLast30Days(Asset asset) {
+        return asset.getPurchaseInfoLast30Days().getTimesShown() >= 50000 &&
+                asset.getPurchaseInfoLast30Days().getTimesPurchased() * 125 >= asset.getPurchaseInfoLast30Days().getTimesShown();
     }
 }
