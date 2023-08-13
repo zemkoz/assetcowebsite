@@ -24,11 +24,6 @@
             <artifactId>SearchResults</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>org.pitest</groupId>
-            <artifactId>pitest-parent</artifactId>
-            <type>pom</type>
-        </dependency>
     </dependencies>
 
     <build>

@@ -12,6 +12,8 @@
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+        <junit5.version>5.9.1</junit5.version>
+        <mockito.version>5.4.0</mockito.version>
         <pitest.version>1.14.2</pitest.version>
         <pitest.junit5.version>1.2.0</pitest.junit5.version>
     </properties>
@@ -35,8 +37,20 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.7.1</version>
+            <version>${junit5.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.pitest</groupId>
+            <artifactId>pitest-parent</artifactId>
+            <version>${pitest.version}</version>
+            <type>pom</type>
         </dependency>
     </dependencies>
 
@@ -47,12 +61,6 @@
                 <artifactId>log4j-bom</artifactId>
                 <version>2.17.1</version>
                 <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>org.pitest</groupId>
-                <artifactId>pitest-parent</artifactId>
-                <version>${pitest.version}</version>
                 <type>pom</type>
             </dependency>
         </dependencies>
