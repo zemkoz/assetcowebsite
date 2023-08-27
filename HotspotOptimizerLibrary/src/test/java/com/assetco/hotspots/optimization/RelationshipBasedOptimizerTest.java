@@ -114,6 +114,26 @@ class RelationshipBasedOptimizerTest {
     }
 
     @Test
+    void partnerAssetsShowcaseIsFull() {
+        var expectedAssetsInShowcase = givenAssetMultipleTimes(firstPartnerVendor, 5);
+
+        sut.optimize(searchResults);
+
+        thenHotspotHasExactly(Showcase, expectedAssetsInShowcase);
+        thenHotspotHasExactly(TopPicks, List.of());
+    }
+
+    @Test
+    void partnerAssetsShowcaseContainsOneMoreFreeSlot() {
+        var expectedAssetsInShowcase = givenAssetMultipleTimes(firstPartnerVendor, 4);
+
+        sut.optimize(searchResults);
+
+        thenHotspotHasExactly(Showcase, expectedAssetsInShowcase);
+        thenHotspotHasExactly(TopPicks, List.of());
+    }
+
+    @Test
     void partnerAssetsExceedingShowcaseSize() {
         var expectedAssetsInShowcase = givenAssetMultipleTimes(firstPartnerVendor, 5);
         var expectedAssetsInTopPicks = givenAssetMultipleTimes(firstPartnerVendor, 2);
